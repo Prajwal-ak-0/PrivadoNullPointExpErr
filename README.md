@@ -10,9 +10,14 @@ Privado CLI uses Java 18, which has issues with container detection in cgroup v2
 
 Our solution creates a custom Docker image that:
 
-- Creates a wrapper script for the Java binary
-- Sets environment variables to disable container support
-- Uses JVM flags to disable container detection
+1. Disables Java container detection using multiple methods:
+   - Creates a wrapper script for the Java binary
+   - Sets environment variables to disable container support
+   - Uses JVM flags to disable container detection
+
+2. Creates a custom entrypoint script that automatically adds the required `--internal-config` parameter when running the scan command.
+
+3. Installs a wrapper script that allows you to use Privado CLI with the same command-line interface as the original.
 
 ## Files
 
@@ -29,7 +34,7 @@ chmod +x privado_wrapper_solution.sh
 ./privado_wrapper_solution.sh
 ```
 
-3. The script will build a custom Docker image that solves the previously mentioned issue.
+3. The script will install a `privado` command in `/usr/local/bin/` that you can use just like the regular Privado CLI.
 
 ## Usage
 
@@ -52,11 +57,35 @@ privado --help
    - Uses the official Privado Docker image as a base
    - Creates a wrapper for the Java binary that disables container detection
    - Sets environment variables to disable container support
+   - Creates a custom entrypoint script that handles the command-line arguments
 
 2. The patched image is built using Docker
 
-**Note**: The script does NOT install privado-cli for you. Please install the modified privado-cli from [here](https://github.com/SuchitG04/privado-cli). After installation, `cd` into the directory and run `go build -o privado`. The binary will be created in the same directory.
+3. A wrapper script is installed in `/usr/local/bin/` that runs the patched Docker image with the necessary volume mounts and security options
 
+4. When you run the `privado` command, it automatically mounts the current directory into the container and passes your arguments to the Privado CLI
+
+## Customization
+
+You can customize the solution to fit your specific needs by modifying the Dockerfile or the entrypoint script.
+
+### Modifying the Dockerfile
+
+1. **Add Additional Tools**: You can install additional tools by adding them to the `apt-get install` command in the Dockerfile.
+
+2. **Change Base Image**: If you need a different base image, modify the `FROM` line to use another Docker image.
+
+3. **Modify Java Wrapper**: Adjust the Java wrapper script to include additional JVM flags or environment variables as needed.
+
+### Modifying the Entrypoint Script
+
+1. **Add Custom Commands**: You can add custom commands or logic to the entrypoint script to perform additional setup or configuration.
+
+2. **Change Argument Handling**: Modify how command-line arguments are processed to add new options or change existing behavior.
+
+3. **Customize Output**: Adjust the output messages or logging to suit your needs.
+
+After making changes, rebuild the Docker image using the installation script to apply your customizations.
 
 ## Technical Details
 
