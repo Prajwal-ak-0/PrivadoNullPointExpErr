@@ -10,14 +10,9 @@ Privado CLI uses Java 18, which has issues with container detection in cgroup v2
 
 Our solution creates a custom Docker image that:
 
-1. Disables Java container detection using multiple methods:
-   - Creates a wrapper script for the Java binary
-   - Sets environment variables to disable container support
-   - Uses JVM flags to disable container detection
-
-2. Creates a custom entrypoint script that automatically adds the required `--internal-config` parameter when running the scan command.
-
-3. Installs a wrapper script that allows you to use Privado CLI with the same command-line interface as the original.
+- Creates a wrapper script for the Java binary
+- Sets environment variables to disable container support
+- Uses JVM flags to disable container detection
 
 ## Files
 
@@ -34,7 +29,7 @@ chmod +x privado_wrapper_solution.sh
 ./privado_wrapper_solution.sh
 ```
 
-3. The script will install a `privado` command in `/usr/local/bin/` that you can use just like the regular Privado CLI.
+3. The script will build a custom Docker image that solves the previously mentioned issue.
 
 ## Usage
 
@@ -57,13 +52,11 @@ privado --help
    - Uses the official Privado Docker image as a base
    - Creates a wrapper for the Java binary that disables container detection
    - Sets environment variables to disable container support
-   - Creates a custom entrypoint script that handles the command-line arguments
 
 2. The patched image is built using Docker
 
-3. A wrapper script is installed in `/usr/local/bin/` that runs the patched Docker image with the necessary volume mounts and security options
+**Note**: The script does NOT install privado-cli for you. Please install the modified privado-cli from [here](https://github.com/SuchitG04/privado-cli). After installation, `cd` into the directory and run `go build -o privado`. The binary will be created in the same directory.
 
-4. When you run the `privado` command, it automatically mounts the current directory into the container and passes your arguments to the Privado CLI
 
 ## Technical Details
 
